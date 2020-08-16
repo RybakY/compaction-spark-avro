@@ -17,9 +17,9 @@ object Compact extends App {
       .getOrCreate()
 
 
-    val file1 = "hdfs://sandbox-hdp.hortonworks:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031828531+0031832242.avro"
+    val file1 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031828531+0031832242.avro"
     val f1Path = new Path(file1)
-    val file2 = "hdfs://sandbox-hdp.hortonworks:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031832243+0031858690.avro"
+    val file2 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031832243+0031858690.avro"
     val f2Path = new Path(file2)
     val path = args(0)
     val path1 = args(1)
