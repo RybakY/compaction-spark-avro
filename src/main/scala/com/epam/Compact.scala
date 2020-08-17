@@ -1,7 +1,6 @@
 package com.epam
 
 import java.net.URI
-import java.util
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -27,7 +26,7 @@ object Compact extends App {
 
     val path = args(0)
     //    val path1 = args(1)
-    val outputPath = args(1)
+    //    val outputPath = args(1)
     val conf = new Configuration()
     conf.addResource(new Path("file:///etc/hadoop/conf/core-site.xml"));
     conf.addResource(new Path("file:///etc/hadoop/conf/hdfs-site.xml"));
@@ -43,27 +42,32 @@ object Compact extends App {
 
     val avroFiles = spark.read.format("com.databricks.spark.avro").load(path)
     //    avroFiles.show(3)
-    avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(outputPath)
+
 
     val pathsList = getPartitionPathList(fs, new Path(path))
-    val listF = listFiles(path,fs)
-    println("-!-!-!-----------------LIST---------------------!-!-!-")
-    println("List partitions= " + listF)
-    println("-!-!-!-----------------LIST---------------------!-!-!-")
-    val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
-//    println(listFiles(s, fs))
-    println("-!-!-!--------------------------------------!-!-!-")
-    val sizesMap = new util.HashMap[String, Long]()
-    for (e <- listF) {
-      //      val listFiles = listFiles(e, fs)
-      val status1 = fs.getFileStatus(new Path(e))
-      val size = status1.getLen/1024
-      sizesMap.put(e,size)
-    }
-    println("-!-!-!------------------SIZE----------------!-!-!-")
-    println(sizesMap)
-    println("-!-!-!------------------SIZE----------------!-!-!-")
 
+    val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
+    //    println(listFiles(s, fs))
+    for (e <- pathsList) {
+      var year = ""
+      var month = ""
+      var day = ""
+      val arr = e.toString.split('/')
+      for (a <- arr) {
+        if (a.contains("year")) {
+          year = a
+        }
+        if (a.contains("month")) {
+          month = a
+        }
+        if (a.contains("day")) {
+          day = a
+        }
+      }
+      val fullMame = year + "|" + month + "|" + day
+      val fullOutputPath = path + "|" + fullMame + "_compacted"
+      avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(fullOutputPath)
+    }
 
     println("Path= " + status.getPath)
     println("---------------")
@@ -79,7 +83,7 @@ object Compact extends App {
     println("ListStatus " + fs.listStatus(new Path(path)).mkString("Array(", ", ", ")"))
 
     println(println("getUsed Path MB =" + fs.getUsed(new Path(path)) / (1024 * 1024)))
-    println(println("getUsed outputPath MB = " + fs.getUsed(new Path(outputPath)) / (1024 * 1024)))
+//    println(println("getUsed outputPath MB = " + fs.getUsed(new Path(outputPath)) / (1024 * 1024)))
 
   }
 
@@ -108,12 +112,11 @@ object Compact extends App {
     //    var files = ""
     val files = new util.ArrayList[String]
     val path = new Path(hdfsDirPath)
-//    val partition = getPartitionPathList(fileSystem, path)
     //    val fileSystem = FileSystem.get(conf)
     //    if ("files" == content) {
     val iterator = fileSystem.listFiles(path, false)
     while (iterator.hasNext) {
-      files.add(iterator.next.getPath+iterator.next.getPath.getName)
+      files.add(iterator.next.getPath + iterator.next.getPath.getName)
     }
     //    {
     //      val status = fileSystem.listStatus(path)
