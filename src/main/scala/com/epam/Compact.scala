@@ -64,8 +64,8 @@ object Compact extends App {
           day = a
         }
       }
-      val fullMame = year + "|" + month + "|" + day
-      val fullOutputPath = path + "|" + fullMame + "_compacted"
+      //      val fullMame = year + "|" + month + "|" + day
+      val fullOutputPath = path + "/" + year + "/" + month + day + "_compacted"
       avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(fullOutputPath)
     }
 
@@ -83,7 +83,7 @@ object Compact extends App {
     println("ListStatus " + fs.listStatus(new Path(path)).mkString("Array(", ", ", ")"))
 
     println(println("getUsed Path MB =" + fs.getUsed(new Path(path)) / (1024 * 1024)))
-//    println(println("getUsed outputPath MB = " + fs.getUsed(new Path(outputPath)) / (1024 * 1024)))
+    //    println(println("getUsed outputPath MB = " + fs.getUsed(new Path(outputPath)) / (1024 * 1024)))
 
   }
 
