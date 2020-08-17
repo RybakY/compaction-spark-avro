@@ -1,10 +1,13 @@
 package com.epam
 
 import java.net.URI
+import java.util
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
+
+import scala.collection.JavaConversions._
 
 object Compact extends App {
 
@@ -43,12 +46,23 @@ object Compact extends App {
     avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(outputPath)
 
     val pathsList = getPartitionPathList(fs, new Path(path))
+    val listF = listFiles(path,fs)
     println("-!-!-!--------------------------------------!-!-!-")
     println("List partitions= " + pathsList)
     println("-!-!-!--------------------------------------!-!-!-")
     val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
     println(listFiles(s, fs))
     println("-!-!-!--------------------------------------!-!-!-")
+    val sizesMap = new util.HashMap[String, Long]()
+    for (e <- listF) {
+      //      val listFiles = listFiles(e, fs)
+      val status1 = fs.getFileStatus(new Path(e))
+      val size = status1.getLen/1024
+      sizesMap.put(e,size)
+    }
+    println("-!-!-!------------------SIZE----------------!-!-!-")
+    println(sizesMap)
+    println("-!-!-!------------------SIZE----------------!-!-!-")
 
 
     println("Path= " + status.getPath)
@@ -72,7 +86,7 @@ object Compact extends App {
   import java.util
 
   @throws[Exception]
-  protected def getPartitionPathList(fs: FileSystem, path: Path): util.List[Path] = {
+  protected def getPartitionPathList(fs: FileSystem, path: Path): util.ArrayList[Path] = {
     val files = fs.listStatus(path)
     val paths = new util.ArrayList[Path]
     if (files != null) for (eachFile <- files) {
@@ -90,15 +104,16 @@ object Compact extends App {
   import org.apache.hadoop.fs.FileSystem
 
   @throws[IOException]
-  def listFiles(hdfsDirPath: String, fileSystem: FileSystem): util.List[String] = {
+  protected def listFiles(hdfsDirPath: String, fileSystem: FileSystem): util.ArrayList[String] = {
     //    var files = ""
     val files = new util.ArrayList[String]
     val path = new Path(hdfsDirPath)
+    val partition = getPartitionPathList(fileSystem, path)
     //    val fileSystem = FileSystem.get(conf)
     //    if ("files" == content) {
     val iterator = fileSystem.listFiles(path, false)
     while (iterator.hasNext) {
-      files.add(iterator.next.getPath.getName)
+      files.add(partition+iterator.next.getPath.getName)
     }
     //    {
     //      val status = fileSystem.listStatus(path)
