@@ -17,13 +17,13 @@ object Compact extends App {
       .getOrCreate()
 
 
-//    val file1 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031828531+0031832242.avro"
-//    val f1Path = new Path(file1)
-//    val file2 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031832243+0031858690.avro"
-//    val f2Path = new Path(file2)
+    //    val file1 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031828531+0031832242.avro"
+    //    val f1Path = new Path(file1)
+    //    val file2 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031832243+0031858690.avro"
+    //    val f2Path = new Path(file2)
 
     val path = args(0)
-//    val path1 = args(1)
+    //    val path1 = args(1)
     val outputPath = args(1)
     val conf = new Configuration()
     conf.addResource(new Path("file:///etc/hadoop/conf/core-site.xml"));
@@ -32,20 +32,25 @@ object Compact extends App {
     //    conf.set("fs.file.impl", classOf[org.apache.hadoop.fs.LocalFileSystem].getName)
     val fs = FileSystem.get(URI.create(path), conf)
     val status = fs.getFileStatus(new Path(path))
-//    val statusF1_before = fs.getFileLinkStatus(f1Path)
-//    println("File1 Size(KBs) before= " + statusF1_before.getLen / 1024)
-//    fs.concat(f1Path, Array[Path] {f2Path})
-//    val statusF1_after = fs.getFileLinkStatus(f1Path)
-//    println("File1 Size(KBs) after= " + statusF1_after.getLen / 1024)
+    //    val statusF1_before = fs.getFileLinkStatus(f1Path)
+    //    println("File1 Size(KBs) before= " + statusF1_before.getLen / 1024)
+    //    fs.concat(f1Path, Array[Path] {f2Path})
+    //    val statusF1_after = fs.getFileLinkStatus(f1Path)
+    //    println("File1 Size(KBs) after= " + statusF1_after.getLen / 1024)
 
     val avroFiles = spark.read.format("com.databricks.spark.avro").load(path)
-//    avroFiles.show(3)
+    //    avroFiles.show(3)
     avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(outputPath)
 
     val pathsList = getPartitionPathList(fs, new Path(path))
     println("-!-!-!--------------------------------------!-!-!-")
-    println("List partitions= "+ pathsList)
+    println("List partitions= " + pathsList)
     println("-!-!-!--------------------------------------!-!-!-")
+    val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
+    println(listFiles(s, fs))
+    println("-!-!-!--------------------------------------!-!-!-")
+
+
     println("Path= " + status.getPath)
     println("---------------")
     println("File Size(KBs)= " + status.getLen / 1024)
@@ -64,7 +69,6 @@ object Compact extends App {
 
   }
 
-  import org.apache.hadoop.fs.FileStatus
   import java.util
 
   @throws[Exception]
@@ -79,6 +83,31 @@ object Compact extends App {
       else paths.addAll(getPartitionPathList(fs, eachFile.getPath))
     }
     paths
+  }
+
+  import java.io.IOException
+
+  import org.apache.hadoop.fs.FileSystem
+
+  @throws[IOException]
+  def listFiles(hdfsDirPath: String, fileSystem: FileSystem): util.List[String] = {
+    //    var files = ""
+    val files = new util.ArrayList[String]
+    val path = new Path(hdfsDirPath)
+    //    val fileSystem = FileSystem.get(conf)
+    //    if ("files" == content) {
+    val iterator = fileSystem.listFiles(path, false)
+    while (iterator.hasNext) {
+      files.add(iterator.next.getPath.getName)
+    }
+    //    {
+    //      val status = fileSystem.listStatus(path)
+    //      for (i <- 0 until status.length) {
+    //        if (status(i).isDirectory) files = files + status(i).getPath.getName + "/\n"
+    //        else files = files + status(i).getPath.getName + "\n"
+    //      }
+    //    }
+    files
   }
 
 }
