@@ -21,9 +21,10 @@ object Compact extends App {
     val f1Path = new Path(file1)
     val file2 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031832243+0031858690.avro"
     val f2Path = new Path(file2)
+
     val path = args(0)
-    val path1 = args(1)
-    val outputPath = args(2)
+//    val path1 = args(1)
+    val outputPath = args(1)
     val conf = new Configuration()
     conf.addResource(new Path("file:///etc/hadoop/conf/core-site.xml"));
     conf.addResource(new Path("file:///etc/hadoop/conf/hdfs-site.xml"));
@@ -38,8 +39,11 @@ object Compact extends App {
     println("File1 Size(KBs) after= " + statusF1_after.getLen / 1024)
 
     val avroFiles = spark.read.format("com.databricks.spark.avro").load(path)
-    avroFiles.show(3)
+//    avroFiles.show(3)
     avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(outputPath)
+
+    val pathsList = getPartitionPathList(fs, new Path(path))
+    println("List partitions= "+ pathsList)
 
     println("Path= " + status.getPath)
     println("---------------")
@@ -51,14 +55,29 @@ object Compact extends App {
     println("---------------")
     println("Is Dir= " + status.isDirectory)
     println("---------------")
-    println(println("getUsed Path1 MB =" + fs.getUsed(new Path(path1)) / (1024 * 1024)))
-    println("ListStatus " + fs.listStatus(new Path(path1)).mkString("Array(", ", ", ")"))
-    println("---------------")
+    println(println("getUsed Path MB =" + fs.getUsed(new Path(path)) / (1024 * 1024)))
+    println("ListStatus " + fs.listStatus(new Path(path)).mkString("Array(", ", ", ")"))
 
     println(println("getUsed Path MB =" + fs.getUsed(new Path(path)) / (1024 * 1024)))
     println(println("getUsed outputPath MB = " + fs.getUsed(new Path(outputPath)) / (1024 * 1024)))
 
   }
 
+  import org.apache.hadoop.fs.FileStatus
+  import java.util
+
+  @throws[Exception]
+  protected def getPartitionPathList(fs: FileSystem, path: Path): util.List[Path] = {
+    val files = fs.listStatus(path)
+    val paths = new util.ArrayList[Path]
+    if (files != null) for (eachFile <- files) {
+      if (eachFile.isFile) {
+        paths.add(path)
+        return paths
+      }
+      else paths.addAll(getPartitionPathList(fs, eachFile.getPath))
+    }
+    paths
+  }
 
 }
