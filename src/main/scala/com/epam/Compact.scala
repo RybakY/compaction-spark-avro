@@ -17,10 +17,10 @@ object Compact extends App {
       .getOrCreate()
 
 
-    val file1 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031828531+0031832242.avro"
-    val f1Path = new Path(file1)
-    val file2 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031832243+0031858690.avro"
-    val f2Path = new Path(file2)
+//    val file1 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031828531+0031832242.avro"
+//    val f1Path = new Path(file1)
+//    val file2 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031832243+0031858690.avro"
+//    val f2Path = new Path(file2)
 
     val path = args(0)
 //    val path1 = args(1)
@@ -32,19 +32,20 @@ object Compact extends App {
     //    conf.set("fs.file.impl", classOf[org.apache.hadoop.fs.LocalFileSystem].getName)
     val fs = FileSystem.get(URI.create(path), conf)
     val status = fs.getFileStatus(new Path(path))
-    val statusF1_before = fs.getFileLinkStatus(f1Path)
-    println("File1 Size(KBs) before= " + statusF1_before.getLen / 1024)
-    fs.concat(f1Path, Array[Path] {f2Path})
-    val statusF1_after = fs.getFileLinkStatus(f1Path)
-    println("File1 Size(KBs) after= " + statusF1_after.getLen / 1024)
+//    val statusF1_before = fs.getFileLinkStatus(f1Path)
+//    println("File1 Size(KBs) before= " + statusF1_before.getLen / 1024)
+//    fs.concat(f1Path, Array[Path] {f2Path})
+//    val statusF1_after = fs.getFileLinkStatus(f1Path)
+//    println("File1 Size(KBs) after= " + statusF1_after.getLen / 1024)
 
     val avroFiles = spark.read.format("com.databricks.spark.avro").load(path)
 //    avroFiles.show(3)
     avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(outputPath)
 
     val pathsList = getPartitionPathList(fs, new Path(path))
+    println("-!-!-!--------------------------------------!-!-!-")
     println("List partitions= "+ pathsList)
-
+    println("-!-!-!--------------------------------------!-!-!-")
     println("Path= " + status.getPath)
     println("---------------")
     println("File Size(KBs)= " + status.getLen / 1024)
