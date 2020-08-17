@@ -48,7 +48,7 @@ object Compact extends App {
     val pathsList = getPartitionPathList(fs, new Path(path))
     val listF = listFiles(path,fs)
     println("-!-!-!--------------------------------------!-!-!-")
-    println("List partitions= " + pathsList)
+    println("List partitions= " + listF)
     println("-!-!-!--------------------------------------!-!-!-")
     val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
     println(listFiles(s, fs))
