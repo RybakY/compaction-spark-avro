@@ -47,11 +47,11 @@ object Compact extends App {
 
     val pathsList = getPartitionPathList(fs, new Path(path))
     val listF = listFiles(path,fs)
-    println("-!-!-!--------------------------------------!-!-!-")
+    println("-!-!-!-----------------LIST---------------------!-!-!-")
     println("List partitions= " + listF)
-    println("-!-!-!--------------------------------------!-!-!-")
+    println("-!-!-!-----------------LIST---------------------!-!-!-")
     val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
-    println(listFiles(s, fs))
+//    println(listFiles(s, fs))
     println("-!-!-!--------------------------------------!-!-!-")
     val sizesMap = new util.HashMap[String, Long]()
     for (e <- listF) {
@@ -108,12 +108,12 @@ object Compact extends App {
     //    var files = ""
     val files = new util.ArrayList[String]
     val path = new Path(hdfsDirPath)
-    val partition = getPartitionPathList(fileSystem, path)
+//    val partition = getPartitionPathList(fileSystem, path)
     //    val fileSystem = FileSystem.get(conf)
     //    if ("files" == content) {
     val iterator = fileSystem.listFiles(path, false)
     while (iterator.hasNext) {
-      files.add(partition+iterator.next.getPath.getName)
+      files.add(iterator.next.getPath+iterator.next.getPath.getName)
     }
     //    {
     //      val status = fileSystem.listStatus(path)
