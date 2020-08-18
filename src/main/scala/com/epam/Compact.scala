@@ -43,12 +43,12 @@ object Compact extends App {
     val avroFiles = spark.read.format("com.databricks.spark.avro").load(path)
     //    avroFiles.show(3)
 
-
     val pathsList = getPartitionPathList(fs, new Path(path))
 
     val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
     //    println(listFiles(s, fs))
     for (e <- pathsList) {
+      println("Path= " + e)
       var year = ""
       var month = ""
       var day = ""
@@ -65,24 +65,25 @@ object Compact extends App {
         }
       }
       //      val fullMame = year + "|" + month + "|" + day
-      val fullOutputPath = path + "/" + year + "/" + month + "/" + day + "_compacted"
-      avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(fullOutputPath)
+      //      val fullOutputPath = path + "/" + year + "/" + month + "/" + day + "_compacted"
+      val fullOutputPath = e+"d"
+      avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(e.toString)
     }
 
-    println("Path= " + status.getPath)
-    println("---------------")
-    println("File Size(KBs)= " + status.getLen / 1024)
-    println("---------------")
-    println("Block Size(KBs)= " + status.getBlockSize / 1024)
-    println("---------------")
-    println(status.getPermission)
-    println("---------------")
-    println("Is Dir= " + status.isDirectory)
-    println("---------------")
-    println(println("getUsed Path MB =" + fs.getUsed(new Path(path)) / (1024 * 1024)))
-    println("ListStatus " + fs.listStatus(new Path(path)).mkString("Array(", ", ", ")"))
+    //    println("Path= " + status.getPath)
+    //    println("---------------")
+    //    println("File Size(KBs)= " + status.getLen / 1024)
+    //    println("---------------")
+    //    println("Block Size(KBs)= " + status.getBlockSize / 1024)
+    //    println("---------------")
+    //    println(status.getPermission)
+    //    println("---------------")
+    //    println("Is Dir= " + status.isDirectory)
+    //    println("---------------")
+    //    println(println("getUsed Path MB =" + fs.getUsed(new Path(path)) / (1024 * 1024)))
+    //    println("ListStatus " + fs.listStatus(new Path(path)).mkString("Array(", ", ", ")"))
 
-    println(println("getUsed Path MB =" + fs.getUsed(new Path(path)) / (1024 * 1024)))
+    //    println(println("getUsed Path MB =" + fs.getUsed(new Path(path)) / (1024 * 1024)))
     //    println(println("getUsed outputPath MB = " + fs.getUsed(new Path(outputPath)) / (1024 * 1024)))
 
   }
