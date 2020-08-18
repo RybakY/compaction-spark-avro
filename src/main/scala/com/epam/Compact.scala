@@ -33,14 +33,14 @@ object Compact extends App {
     conf.set("fs.hdfs.impl", classOf[org.apache.hadoop.hdfs.DistributedFileSystem].getName)
     //    conf.set("fs.file.impl", classOf[org.apache.hadoop.fs.LocalFileSystem].getName)
     val fs = FileSystem.get(URI.create(path), conf)
-    val status = fs.getFileStatus(new Path(path))
+    //    val status = fs.getFileStatus(new Path(path))
     //    val statusF1_before = fs.getFileLinkStatus(f1Path)
     //    println("File1 Size(KBs) before= " + statusF1_before.getLen / 1024)
     //    fs.concat(f1Path, Array[Path] {f2Path})
     //    val statusF1_after = fs.getFileLinkStatus(f1Path)
     //    println("File1 Size(KBs) after= " + statusF1_after.getLen / 1024)
 
-    val avroFiles = spark.read.format("com.databricks.spark.avro").load(path)
+    //    val avroFiles = spark.read.format("com.databricks.spark.avro").load(path)
     //    avroFiles.show(3)
 
     val pathsList = getPartitionPathList(fs, new Path(path))
@@ -49,6 +49,8 @@ object Compact extends App {
     //    println(listFiles(s, fs))
     for (e <- pathsList) {
       println("Path= " + e)
+      val avroFiles = spark.read.format("com.databricks.spark.avro").load(e.toString)
+      println("Count= " + avroFiles.count())
       var year = ""
       var month = ""
       var day = ""
@@ -66,8 +68,13 @@ object Compact extends App {
       }
       //      val fullMame = year + "|" + month + "|" + day
       //      val fullOutputPath = path + "/" + year + "/" + month + "/" + day + "_compacted"
-      val fullOutputPath = e+"d"
-      avroFiles.coalesce(1).write.format("com.databricks.spark.avro").save(e.toString)
+      val fullOutputPath = e + "d"
+      avroFiles
+        .coalesce(1)
+        .write
+        .format("com.databricks.spark.avro")
+        .mode("overwrite")
+        .save(e.toString)
     }
 
     //    println("Path= " + status.getPath)
