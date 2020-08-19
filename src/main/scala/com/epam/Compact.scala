@@ -44,31 +44,32 @@ object Compact extends App {
     //    avroFiles.show(3)
 
     val pathsList = getPartitionPathList(fs, new Path(path))
+    println("--------------->PathList= "+pathsList)
 
-    val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
+//    val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
     //    println(listFiles(s, fs))
     for (e <- pathsList) {
-      println("Path= " + e)
+      println("---------------->Path= " + e.toString)
       val avroFiles = spark.read.format("com.databricks.spark.avro").load(e.toString)
-      println("Count= " + avroFiles.count())
-      var year = ""
-      var month = ""
-      var day = ""
-      val arr = e.toString.split('/')
-      for (a <- arr) {
-        if (a.contains("year")) {
-          year = a
-        }
-        if (a.contains("month")) {
-          month = a
-        }
-        if (a.contains("day")) {
-          day = a
-        }
-      }
+      println("---------------->Count= " + avroFiles.count())
+//      var year = ""
+//      var month = ""
+//      var day = ""
+//      val arr = e.toString.split('/')
+//      for (a <- arr) {
+//        if (a.contains("year")) {
+//          year = a
+//        }
+//        if (a.contains("month")) {
+//          month = a
+//        }
+//        if (a.contains("day")) {
+//          day = a
+//        }
+//      }
       //      val fullMame = year + "|" + month + "|" + day
       //      val fullOutputPath = path + "/" + year + "/" + month + "/" + day + "_compacted"
-      val fullOutputPath = e + "d"
+//      val fullOutputPath = e
       avroFiles
         .coalesce(1)
         .write
@@ -115,17 +116,17 @@ object Compact extends App {
 
   import org.apache.hadoop.fs.FileSystem
 
-  @throws[IOException]
-  protected def listFiles(hdfsDirPath: String, fileSystem: FileSystem): util.ArrayList[String] = {
-    //    var files = ""
-    val files = new util.ArrayList[String]
-    val path = new Path(hdfsDirPath)
-    //    val fileSystem = FileSystem.get(conf)
-    //    if ("files" == content) {
-    val iterator = fileSystem.listFiles(path, false)
-    while (iterator.hasNext) {
-      files.add(iterator.next.getPath + iterator.next.getPath.getName)
-    }
+//  @throws[IOException]
+//  protected def listFiles(hdfsDirPath: String, fileSystem: FileSystem): util.ArrayList[String] = {
+//    //    var files = ""
+//    val files = new util.ArrayList[String]
+//    val path = new Path(hdfsDirPath)
+//    //    val fileSystem = FileSystem.get(conf)
+//    //    if ("files" == content) {
+//    val iterator = fileSystem.listFiles(path, false)
+//    while (iterator.hasNext) {
+//      files.add(iterator.next.getPath + iterator.next.getPath.getName)
+//    }
     //    {
     //      val status = fileSystem.listStatus(path)
     //      for (i <- 0 until status.length) {
@@ -133,7 +134,7 @@ object Compact extends App {
     //        else files = files + status(i).getPath.getName + "\n"
     //      }
     //    }
-    files
-  }
+//    files
+//  }
 
 }
