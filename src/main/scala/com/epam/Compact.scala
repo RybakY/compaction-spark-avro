@@ -71,13 +71,13 @@ object Compact extends App {
       //      val fullOutputPath = path + "/" + year + "/" + month + "/" + day + "_compacted"
 //      val fullOutputPath = e
       fs.delete(e, true)
+      spark.catalog.refreshTable("default.scala_confluent")
       avroFiles
         .coalesce(1)
         .write
         .mode(SaveMode.Overwrite)
         .format("com.databricks.spark.avro")
         .save(e.toString)
-      spark.catalog.refreshTable("default.scala_confluent")
     }
 
     //    println("Path= " + status.getPath)
