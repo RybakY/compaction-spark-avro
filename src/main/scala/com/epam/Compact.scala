@@ -52,11 +52,11 @@ object Compact extends App {
       println("---------------->Path= " + p.toString)
       val avroFiles = spark.read.format("com.databricks.spark.avro").load(p.toString)
       println("---------------->Count Before= " + avroFiles.count())
-      var numberFiles = 0
-      while (fs.listFiles(p, true).hasNext) {
-        numberFiles = numberFiles + 1
-      }
-      println("Number files of " + p + ": ")
+//      var numberFiles = 0
+//      while (fs.listFiles(p, true).hasNext) {
+//        numberFiles = numberFiles + 1
+//      }
+//      println("Number files of " + p + ": ")
 
       val fullOutputPath = p + "_tmp"
       //      spark.catalog.refreshByPath(e.toString)
