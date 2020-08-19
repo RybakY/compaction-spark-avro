@@ -44,33 +44,22 @@ object Compact extends App {
     //    avroFiles.show(3)
 
     val pathsList = getPartitionPathList(fs, new Path(path))
-    println("--------------->PathList= "+pathsList)
+    println("--------------->PathList= " + pathsList)
 
-//    val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
+    //    val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
     //    println(listFiles(s, fs))
-    for (e <- pathsList) {
-      println("---------------->Path= " + e.toString)
-      val avroFiles = spark.read.format("com.databricks.spark.avro").load(e.toString)
-      println("---------------->Count= " + avroFiles.count())
-//      var year = ""
-//      var month = ""
-//      var day = ""
-//      val arr = e.toString.split('/')
-//      for (a <- arr) {
-//        if (a.contains("year")) {
-//          year = a
-//        }
-//        if (a.contains("month")) {
-//          month = a
-//        }
-//        if (a.contains("day")) {
-//          day = a
-//        }
-//      }
-      //      val fullMame = year + "|" + month + "|" + day
-      //      val fullOutputPath = path + "/" + year + "/" + month + "/" + day + "_compacted"
-      val fullOutputPath = e+"_tmp"
-//      spark.catalog.refreshByPath(e.toString)
+    for (p <- pathsList) {
+      println("---------------->Path= " + p.toString)
+      val avroFiles = spark.read.format("com.databricks.spark.avro").load(p.toString)
+      println("---------------->Count Before= " + avroFiles.count())
+      var numberFiles = 0
+      while (fs.listFiles(p, true).hasNext) {
+        numberFiles = numberFiles + 1
+      }
+      println("Number files of " + p + ": ")
+
+      val fullOutputPath = p + "_tmp"
+      //      spark.catalog.refreshByPath(e.toString)
       avroFiles
         .coalesce(1)
         .write
@@ -78,9 +67,17 @@ object Compact extends App {
         .format("com.databricks.spark.avro")
         .save(fullOutputPath)
 
-      fs.delete(e, true)
-      fs.rename(new Path(fullOutputPath),e)
+      fs.delete(p, true)
+      fs.rename(new Path(fullOutputPath), p)
+
     }
+    val pathsListAfter = getPartitionPathList(fs, new Path(path))
+
+    val avroFilesAfter0 = spark.read.format("com.databricks.spark.avro").load(pathsListAfter.get(0).toString)
+    println("---------------->Count After 0= " + avroFilesAfter0.count())
+
+    val avroFilesAfter1 = spark.read.format("com.databricks.spark.avro").load(pathsListAfter.get(1).toString)
+    println("---------------->Count After 1= " + avroFilesAfter1.count())
 
     //    println("Path= " + status.getPath)
     //    println("---------------")
@@ -116,29 +113,25 @@ object Compact extends App {
     paths
   }
 
-  import java.io.IOException
-
-  import org.apache.hadoop.fs.FileSystem
-
-//  @throws[IOException]
-//  protected def listFiles(hdfsDirPath: String, fileSystem: FileSystem): util.ArrayList[String] = {
-//    //    var files = ""
-//    val files = new util.ArrayList[String]
-//    val path = new Path(hdfsDirPath)
-//    //    val fileSystem = FileSystem.get(conf)
-//    //    if ("files" == content) {
-//    val iterator = fileSystem.listFiles(path, false)
-//    while (iterator.hasNext) {
-//      files.add(iterator.next.getPath + iterator.next.getPath.getName)
-//    }
-    //    {
-    //      val status = fileSystem.listStatus(path)
-    //      for (i <- 0 until status.length) {
-    //        if (status(i).isDirectory) files = files + status(i).getPath.getName + "/\n"
-    //        else files = files + status(i).getPath.getName + "\n"
-    //      }
-    //    }
-//    files
-//  }
+  //  @throws[IOException]
+  //  protected def listFiles(hdfsDirPath: String, fileSystem: FileSystem): util.ArrayList[String] = {
+  //    //    var files = ""
+  //    val files = new util.ArrayList[String]
+  //    val path = new Path(hdfsDirPath)
+  //    //    val fileSystem = FileSystem.get(conf)
+  //    //    if ("files" == content) {
+  //    val iterator = fileSystem.listFiles(path, false)
+  //    while (iterator.hasNext) {
+  //      files.add(iterator.next.getPath + iterator.next.getPath.getName)
+  //    }
+  //    {
+  //      val status = fileSystem.listStatus(path)
+  //      for (i <- 0 until status.length) {
+  //        if (status(i).isDirectory) files = files + status(i).getPath.getName + "/\n"
+  //        else files = files + status(i).getPath.getName + "\n"
+  //      }
+  //    }
+  //    files
+  //  }
 
 }
