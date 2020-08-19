@@ -79,6 +79,7 @@ object Compact extends App {
         .save(fullOutputPath)
 
       fs.delete(e, true)
+      fs.rename(new Path(fullOutputPath),e)
     }
 
     //    println("Path= " + status.getPath)
