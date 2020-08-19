@@ -44,13 +44,16 @@ object Compact extends App {
     //    val s = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=17"
     //    println(listFiles(s, fs))
     for (p <- pathsList) {
-      println("---------------->Path= " + p.toString)
+//      println("---------------->Path= " + p.toString)
       val avroFiles = spark.read.format("com.databricks.spark.avro").load(p.toString)
-      println("---------------->Count Before= " + avroFiles.count())
+//      println("---------------->Count Before= " + avroFiles.count())
       var numberFiles = 0
       val fs1 = FileSystem.get(URI.create(p.toString), conf)
       val status = fs1.listStatus(p)
-      status.foreach(x => println("----------Files in dir " + p + "-----------" + x.getPath))
+      println("----------Files in dir [" + p + "]:")
+      status.foreach(x => println(x.getPath))
+      status.filter(d => d.isFile).foreach(_ => numberFiles = numberFiles + 1)
+      println("--------------Number of files in dir [" + p + "]: " + numberFiles)
 
       //      println("------------->List files (true)" + fs.listFiles(p, true))
       //      println("------------->List files (false)" + fs.listFiles(p, false))
