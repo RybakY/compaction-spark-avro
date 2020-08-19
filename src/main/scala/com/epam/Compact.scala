@@ -52,32 +52,30 @@ object Compact extends App {
       println("---------------->Path= " + p.toString)
       val avroFiles = spark.read.format("com.databricks.spark.avro").load(p.toString)
       println("---------------->Count Before= " + avroFiles.count())
-//      var numberFiles = 0
-//      while (fs.listFiles(p, true).hasNext) {
-//        numberFiles = numberFiles + 1
-//      }
-//      println("Number files of " + p + ": ")
+      var numberFiles = 0
+      while (fs.listFiles(p, false).hasNext) {
+        numberFiles = numberFiles + 1
+      }
+      println("--------------->Number files of " + p + ": " + numberFiles)
 
-      val fullOutputPath = p + "_tmp"
+      val tmpOutputPath = p + "_tmp"
       //      spark.catalog.refreshByPath(e.toString)
       avroFiles
         .coalesce(1)
         .write
         .mode(SaveMode.Overwrite)
         .format("com.databricks.spark.avro")
-        .save(fullOutputPath)
+        .save(tmpOutputPath)
 
       fs.delete(p, true)
-      fs.rename(new Path(fullOutputPath), p)
+      fs.rename(new Path(tmpOutputPath), p)
 
     }
-    val pathsListAfter = getPartitionPathList(fs, new Path(path))
-
-    val avroFilesAfter0 = spark.read.format("com.databricks.spark.avro").load(pathsListAfter.get(0).toString)
-    println("---------------->Count After 0= " + avroFilesAfter0.count())
-
-    val avroFilesAfter1 = spark.read.format("com.databricks.spark.avro").load(pathsListAfter.get(1).toString)
-    println("---------------->Count After 1= " + avroFilesAfter1.count())
+    //    val pathsListAfter = getPartitionPathList(fs, new Path(path))
+    //    val avroFilesAfter0 = spark.read.format("com.databricks.spark.avro").load(pathsListAfter.get(0).toString)
+    //    println("---------------->Count After 0= " + avroFilesAfter0.count())
+    //    val avroFilesAfter1 = spark.read.format("com.databricks.spark.avro").load(pathsListAfter.get(1).toString)
+    //    println("---------------->Count After 1= " + avroFilesAfter1.count())
 
     //    println("Path= " + status.getPath)
     //    println("---------------")
