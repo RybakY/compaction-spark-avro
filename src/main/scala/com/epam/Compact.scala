@@ -70,6 +70,7 @@ object Compact extends App {
       //      val fullMame = year + "|" + month + "|" + day
       //      val fullOutputPath = path + "/" + year + "/" + month + "/" + day + "_compacted"
 //      val fullOutputPath = e
+      fs.delete(e,true)
       avroFiles
         .coalesce(1)
         .write
