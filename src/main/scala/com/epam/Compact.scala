@@ -69,15 +69,15 @@ object Compact extends App {
 //      }
       //      val fullMame = year + "|" + month + "|" + day
       //      val fullOutputPath = path + "/" + year + "/" + month + "/" + day + "_compacted"
-//      val fullOutputPath = e
-      fs.delete(e, true)
-      spark.catalog.refreshByPath(e.toString)
+      val fullOutputPath = e+"_tmp"
+//      fs.delete(e, true)
+//      spark.catalog.refreshByPath(e.toString)
       avroFiles
         .coalesce(1)
         .write
         .mode(SaveMode.Overwrite)
         .format("com.databricks.spark.avro")
-        .save(e.toString)
+        .save(fullOutputPath)
     }
 
     //    println("Path= " + status.getPath)
