@@ -70,7 +70,7 @@ object Compact extends App {
       //      val fullMame = year + "|" + month + "|" + day
       //      val fullOutputPath = path + "/" + year + "/" + month + "/" + day + "_compacted"
       val fullOutputPath = e+"_tmp"
-//      fs.delete(e, true)
+      fs.delete(e, true)
 //      spark.catalog.refreshByPath(e.toString)
       avroFiles
         .coalesce(1)
