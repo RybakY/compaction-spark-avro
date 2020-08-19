@@ -19,11 +19,6 @@ object Compact extends App {
       .getOrCreate()
 
 
-    //    val file1 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031828531+0031832242.avro"
-    //    val f1Path = new Path(file1)
-    //    val file2 = "hdfs://sandbox-hdp.hortonworks.com:8020/topics/scala_confluent/year=2020/month=08/day=11/hour=01/scala_confluent+0+0031832243+0031858690.avro"
-    //    val f2Path = new Path(file2)
-
     val path = args(0)
     //    val path1 = args(1)
     //    val outputPath = args(1)
@@ -53,12 +48,21 @@ object Compact extends App {
       val avroFiles = spark.read.format("com.databricks.spark.avro").load(p.toString)
       println("---------------->Count Before= " + avroFiles.count())
       var numberFiles = 0
-      println("------------->List files (true)" + fs.listFiles(p, true))
-      println("------------->List files (false)" + fs.listFiles(p, false))
-//      while (fs.listFiles(p, false).hasNext) {
-//        numberFiles = numberFiles + 1
-//      }
-//      println("--------------->Number files of " + p + ": " + numberFiles)
+      val fs1 = FileSystem.get(URI.create(p.toString), conf)
+      val status = fs1.listStatus(p)
+      status.foreach(x => println("----------Files in dir " + p + "-----------" + x.getPath))
+
+      //      println("------------->List files (true)" + fs.listFiles(p, true))
+      //      println("------------->List files (false)" + fs.listFiles(p, false))
+      //      while (fs.listFiles(p, false).hasNext) {
+      //        numberFiles = numberFiles + 1
+      //      }
+      //      println("--------------->Number files of " + p + ": " + numberFiles)
+      avroFiles.cache.count()
+      val catalyst_plan = avroFiles.queryExecution.logical
+      val df_size_in_bytes = spark.sessionState.executePlan(
+        catalyst_plan).optimizedPlan.stats.sizeInBytes
+      println("------------------> Size(MBs)= " + df_size_in_bytes / (1024 * 1024))
 
       val tmpOutputPath = p + "_tmp"
       //      spark.catalog.refreshByPath(e.toString)
