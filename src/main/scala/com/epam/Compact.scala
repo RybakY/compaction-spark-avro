@@ -4,7 +4,7 @@ import java.net.URI
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SaveMode, SparkSession}
 
 import scala.collection.JavaConversions._
 
@@ -73,8 +73,8 @@ object Compact extends App {
       avroFiles
         .coalesce(1)
         .write
+//        .mode(SaveMode.Overwrite)
         .format("com.databricks.spark.avro")
-        .mode("overwrite")
         .save(e.toString)
     }
 
