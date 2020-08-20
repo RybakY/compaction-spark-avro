@@ -1,6 +1,7 @@
 package com.epam
 
 import java.net.URI
+import java.util
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -30,13 +31,19 @@ object Compact extends App {
       val n = countNumberOfFiles(conf, s)
       println("---------------->Before filter Number files in dir [" + s + "]: " + n)
     }
-    partitionsList.filter(p => countNumberOfFiles(conf, p) > 4)
-    //    partitionsList.forEach(p=>println(countNumberOfFiles(fileSystem, p)))
+    //    partitionsList.filter(p => countNumberOfFiles(conf, p) > 4)
+    val partitionsListFiltered = new util.ArrayList[Path]
     for (s <- partitionsList) {
+      if (countNumberOfFiles(conf, s) > 3) {
+        partitionsListFiltered.add(s)
+      }
+    }
+    for (s <- partitionsListFiltered) {
       val n = countNumberOfFiles(conf, s)
       println("---------------->After filter Number files in dir [" + s + "]: " + n)
     }
     println("--------------->PathList= " + partitionsList)
+    println("--------------->PathListFiltered= " + partitionsListFiltered)
 
     for (p <- partitionsList) {
       val avroFiles = spark
