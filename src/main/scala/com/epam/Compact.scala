@@ -26,15 +26,15 @@ object Compact extends App {
     val fileSystem = FileSystem.get(URI.create(inputPath), conf)
 
     val partitionsList = getPartitionPathList(fileSystem, new Path(inputPath))
-    for(s<-partitionsList){
-      val n=countNumberOfFiles(fileSystem,s)
-      println("---------------->Before filter Number files in dir ["+s+"]: "+n)
+    for (s <- partitionsList) {
+      val n = countNumberOfFiles(conf, s)
+      println("---------------->Before filter Number files in dir [" + s + "]: " + n)
     }
-    partitionsList.filter(p => countNumberOfFiles(fileSystem, p) > 4)
-//    partitionsList.forEach(p=>println(countNumberOfFiles(fileSystem, p)))
-    for(s<-partitionsList){
-      val n=countNumberOfFiles(fileSystem,s)
-      println("---------------->After filter Number files in dir ["+s+"]: "+n)
+    partitionsList.filter(p => countNumberOfFiles(conf, p) > 4)
+    //    partitionsList.forEach(p=>println(countNumberOfFiles(fileSystem, p)))
+    for (s <- partitionsList) {
+      val n = countNumberOfFiles(conf, s)
+      println("---------------->After filter Number files in dir [" + s + "]: " + n)
     }
     println("--------------->PathList= " + partitionsList)
 
@@ -94,7 +94,8 @@ object Compact extends App {
     paths
   }
 
-  protected def countNumberOfFiles(fileSystem: FileSystem, path: Path): Int = {
+  protected def countNumberOfFiles(conf: Configuration, path: Path): Int = {
+    val fileSystem = FileSystem.get(URI.create(path.toString), conf)
     var numberFiles = 0
     val status = fileSystem.listStatus(path)
     status
