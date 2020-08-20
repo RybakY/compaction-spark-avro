@@ -31,19 +31,19 @@ object Compact extends App {
       val n = countNumberOfFiles(conf, s)
       println("---------------->Before filter Number files in dir [" + s + "]: " + n)
     }
-    //    partitionsList.filter(p => countNumberOfFiles(conf, p) > 4)
+    val partitionsListF = partitionsList.filter(p => countNumberOfFiles(conf, p) > 3)
     val partitionsListFiltered = new util.ArrayList[Path]
     for (s <- partitionsList) {
       if (countNumberOfFiles(conf, s) > 3) {
         partitionsListFiltered.add(s)
       }
     }
-    for (s <- partitionsListFiltered) {
+    for (s <- partitionsListF) {
       val n = countNumberOfFiles(conf, s)
       println("---------------->After filter Number files in dir [" + s + "]: " + n)
     }
     println("--------------->PathList= " + partitionsList)
-    println("--------------->PathListFiltered= " + partitionsListFiltered)
+    println("--------------->PathListFiltered= " + partitionsListF)
 
     for (p <- partitionsList) {
       val avroFiles = spark
