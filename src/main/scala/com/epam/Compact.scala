@@ -26,12 +26,11 @@ object Compact extends App {
     val fileSystem = FileSystem.get(URI.create(inputPath), conf)
 
     val partitionsList = getPartitionPathList(fileSystem, new Path(inputPath))
-    //    for (s <- partitionsList) {
-    //      val n = countNumberOfFiles(conf, s)
-    //      println("---------------->Before filter Number files in dir [" + s + "]: " + n)
-    //    }
     val partitionsListFiltered = partitionsList.filter(p => countNumberOfFiles(conf, p) > 1)
-
+    for (s <- partitionsListFiltered) {
+      val n = countNumberOfFiles(conf, s)
+      println("---------------->Number files in dir (filtered) [" + s + "]: " + n)
+    }
     for (p <- partitionsListFiltered) {
       val avroFiles = spark
         .read
